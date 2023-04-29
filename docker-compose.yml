@@ -1,0 +1,53 @@
+version: "3.7"
+services: 
+  nextjs:
+    build: ./nextjs
+    container_name: nextjs
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    networks:
+      - web_api
+
+  go_app:
+    build: ./src
+    container_name: go-web-api
+    restart: unless-stopped
+    ports:
+      - 4000:4000
+    networks:
+      - web_api
+  
+  db:
+    # image: postgres
+    build: ./database
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - 5432:5432
+    # volumes:
+    #   - ./database/scripts:/docker-entrypoint-initdb.d
+    networks:
+      - web_api
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: user@domain.com
+  #     PGADMIN_DEFAULT_PASSWORD: pw
+  #     #PGADMIN_LISTEN_PORT: 8080
+  #   ports:
+  #     - 5050:80
+  #   networks:
+  #     - web_api
+
+networks:
+  web_api:
+    driver: bridge
