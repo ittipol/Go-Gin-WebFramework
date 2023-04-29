@@ -18,8 +18,8 @@ spec:
             name: argocd-server
             port:
               name: http
-    host: argocd.example.test
+    host: argocd.example.com
   tls:
   - hosts:
-    - argocd.example.test
+    - argocd.example.com
     secretName: argocd-secret # do not change, this is provided by Argo CD
