@@ -45,8 +45,8 @@ WORKDIR /var/www/nextjs-app
 # ENV NODE_ENV production
 
 # Copy only used files to the production image
-# COPY --from=build /var/www/nextjs-app/node_modules ./node_modules
-# COPY --from=build /var/www/nextjs-app/package*.json ./
+COPY --from=build /var/www/nextjs-app/node_modules ./node_modules
+COPY --from=build /var/www/nextjs-app/package*.json ./
 COPY --from=build /var/www/nextjs-app/.next ./.next
 
 EXPOSE 3000
