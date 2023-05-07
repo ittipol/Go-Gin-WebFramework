@@ -5,27 +5,25 @@ import (
 	"web-api/services/user"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-type userController struct {
-	db *gorm.DB
-}
-
-type IUserController interface {
+type UserController interface {
 	Me(c *gin.Context)
 }
 
-func NewUserController(db *gorm.DB) IUserController {
-	return &userController{db}
+type userController struct {
+	userService user.UserService
 }
 
-func (h *userController) Me(c *gin.Context) {
+func NewUserController(userService user.UserService) UserController {
+	return &userController{userService}
+}
+
+func (obj *userController) Me(c *gin.Context) {
 
 	id := c.MustGet("userId").(float64)
 
-	s := user.NewUserService(h.db)
-	res, err := s.Me(int(id))
+	user, err := obj.userService.Me(int(id))
 
 	if err != nil {
 
@@ -36,5 +34,5 @@ func (h *userController) Me(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, user)
 }

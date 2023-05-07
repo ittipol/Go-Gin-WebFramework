@@ -6,25 +6,21 @@ import (
 	"web-api/services/login"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-type loginController struct {
-	db *gorm.DB
-}
-
-type ILoginController interface {
+type LoginController interface {
 	Login(ctx *gin.Context)
 	Register(ctx *gin.Context)
 }
-
-func NewLoginController(db *gorm.DB) ILoginController {
-	return &loginController{
-		db,
-	}
+type loginController struct {
+	loginService login.LoginService
 }
 
-func (h *loginController) Login(c *gin.Context) {
+func NewLoginController(loginService login.LoginService) LoginController {
+	return &loginController{loginService}
+}
+
+func (obj *loginController) Login(c *gin.Context) {
 
 	var body request.LoginBody
 
@@ -36,8 +32,7 @@ func (h *loginController) Login(c *gin.Context) {
 		return
 	}
 
-	s := login.NewLoginService(h.db)
-	res, err := s.Login(&body)
+	res, err := obj.loginService.Login(body.Email, body.Password)
 
 	if err != nil {
 
@@ -48,17 +43,28 @@ func (h *loginController) Login(c *gin.Context) {
 		return
 	}
 
-	// c.Header("Set-Cookie", "refresh_token="+res.RefreshToken)
+	// Set Response Header
+	// c.Header("key", "value")
 
 	c.SetCookie("refresh_token", res.RefreshToken, 1800, "/", "localhost", false, true)
 	c.JSON(http.StatusOK, res)
 
+	return
 }
 
-func (h *loginController) Register(c *gin.Context) {
+func (obj *loginController) Register(c *gin.Context) {
 
-	s := login.NewLoginService(h.db)
-	err := s.Register(c)
+	var body request.RegisterBody
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	err := obj.loginService.Register(body.Email, body.Password, body.Name)
 
 	if err != nil {
 
@@ -72,4 +78,6 @@ func (h *loginController) Register(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 	})
+
+	return
 }

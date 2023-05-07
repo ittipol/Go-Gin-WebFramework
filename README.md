@@ -1,6 +1,6 @@
 # Go programming language - Gin Web Framework
 
-## Packages
+## Go Packages
 
 - gin [https://pkg.go.dev/github.com/gin-gonic/gin](https://pkg.go.dev/github.com/gin-gonic/gin)
 - godotenv [https://pkg.go.dev/github.com/joho/godotenv](https://pkg.go.dev/github.com/joho/godotenv)
@@ -20,6 +20,23 @@ go get gorm.io/gorm
 # Install gorm PostgreSQL driver package
 go get gorm.io/driver/postgres
 ```
+
+## Run unit test
+``` bash
+# Test all services in package services/login
+go test web-api/services/login -v
+
+# Test only login service
+go test web-api/services/login -v -run=TestLogin
+
+# Test only register service
+go test web-api/services/login -v -run=TestRegister
+```
+
+## Software stack
+- Go
+- Next.js
+- MySQL
 
 ## Start server and application
 

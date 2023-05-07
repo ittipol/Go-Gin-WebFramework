@@ -6,14 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type IHealthController interface {
+type HealthController interface {
 	Health(c *gin.Context)
 }
 
 type healthController struct {
 }
 
-func NewHealthController() IHealthController {
+func NewHealthController() HealthController {
 	return &healthController{}
 }
 

@@ -6,6 +6,9 @@ import (
 	"web-api/controllers"
 	"web-api/middlewares"
 	"web-api/orm/db"
+	"web-api/repository"
+	"web-api/services/login"
+	"web-api/services/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -31,17 +34,20 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Start....")
-	// mode := os.Getenv(EnvGinMode)
-
 	// init DB
 	db := db.GetConnection(os.Getenv("DSN"))
-	// defer db.close()
 
-	// controllers
-	var healthController controllers.IHealthController = controllers.NewHealthController()
-	var loginController controllers.ILoginController = controllers.NewLoginController(db)
-	var userController controllers.IUserController = controllers.NewUserController(db)
+	// repository
+	userRepositiry := repository.NewUserRepositiry(db)
+
+	// service
+	loginService := login.NewLoginService(userRepositiry)
+	userService := user.NewUserService(userRepositiry)
+
+	// controller
+	healthController := controllers.NewHealthController()
+	loginController := controllers.NewLoginController(loginService)
+	userController := controllers.NewUserController(userService)
 
 	r := gin.Default()
 
@@ -55,7 +61,6 @@ func main() {
 	// r.Use(middlewares.CheckAuth).GET("/login", loginController.Login)
 	r.POST("/login", loginController.Login)
 	r.POST("/register", loginController.Register)
-	// r.GET("/validate", services.Validate)
 
 	port, found := os.LookupEnv("PORT")
 

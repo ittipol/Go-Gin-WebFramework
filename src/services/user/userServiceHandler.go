@@ -1,35 +1,45 @@
 package user
 
 import (
+	"errors"
 	"web-api/repository"
-
-	"gorm.io/gorm"
 )
 
+var (
+	ErrUserNotFound = errors.New("User Not Found")
+)
+
+type UserResponse struct {
+	ID    int
+	Email string
+	Name  string
+}
+
+type UserService interface {
+	Me(id int) (*UserResponse, error)
+}
 type userService struct {
-	db *gorm.DB
+	userRepositiry repository.UserRepositiry
 }
 
-type IUserService interface {
-	Me(id int) (*repository.User, error)
+func NewUserService(userRepositiry repository.UserRepositiry) UserService {
+	return &userService{userRepositiry}
 }
 
-func NewUserService(db *gorm.DB) IUserService {
-	return &userService{
-		db,
-	}
-}
+func (obj *userService) Me(id int) (*UserResponse, error) {
 
-func (h *userService) Me(id int) (*repository.User, error) {
+	user, err := obj.userRepositiry.GetUserById(id)
 
-	user := repository.User{}
-
-	result := h.db.Table("users").Where("id = ?", id).Select("id, email, name").Scan(&user)
-
-	if result.Error != nil {
-		return nil, result.Error
+	if err != nil {
+		return nil, ErrUserNotFound
 	}
 
-	return &user, nil
+	res := UserResponse{
+		ID:    user.ID,
+		Email: user.Email,
+		Name:  user.Name,
+	}
+
+	return &res, nil
 
 }
