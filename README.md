@@ -41,7 +41,7 @@ go test web-api/services/login -v -run=TestRegister
 ## Start server and application
 
 ``` bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 ## Test
